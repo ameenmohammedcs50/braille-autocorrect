@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Braille Auto-Correct System</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f4f4;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 50px;
+    }
+
+    h1 {
+      color: #333;
+      margin-bottom: 20px;
+    }
+
+    form {
+      background: white;
+      padding: 25px;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      width: 100%;
+      max-width: 500px;
+    }
+
+    input[type="text"] {
+      width: 100%;
+      padding: 10px;
+      margin-top: 10px;
+      margin-bottom: 20px;
+      font-size: 16px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+    }
+
+    button {
+      background-color: #007BFF;
+      color: white;
+      padding: 10px 20px;
+      font-size: 16px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #0056b3;
+    }
+
+    .result {
+      margin-top: 20px;
+      background: #ffffff;
+      padding: 15px;
+      border-radius: 10px;
+      width: 100%;
+      max-width: 500px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+
+    .result p {
+      margin: 8px 0;
+      font-size: 16px;
+    }
+
+    .highlight {
+      font-weight: bold;
+      color: #007BFF;
+    }
+  </style>
+</head>
+<body>
+  <h1>Braille Auto-Correct</h1>
+
+  <form id="braille-form">
+    <label for="braille_input">Enter Braille QWERTY Sequence:</label>
+    <input type="text" id="braille_input" name="braille_input" placeholder="e.g., dk d k" required>
+    <button type="submit">Enter</button>
+  </form>
+
+  <div class="result" id="result" style="display: none;">
+    <p>Typed Sequence: <span class="highlight" id="typed-seq"></span></p>
+    <p>Decoded Word: <span class="highlight" id="decoded-word"></span></p>
+    <p>Suggested Word: <span class="highlight" id="suggestion"></span></p>
+  </div>
+
+  <script>
+    document.getElementById("braille-form").addEventListener("submit", function(e) {
+      e.preventDefault();
+      const word = document.getElementById("braille_input").value;
+      fetch("/suggest", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ word: word })
+      })
+      .then(response => response.json())
+      .then(data => {
+        document.getElementById("result").style.display = "block";
+        document.getElementById("typed-seq").textContent = data.typed_sequence;
+        document.getElementById("decoded-word").textContent = data.decoded_word;
+        document.getElementById("suggestion").textContent = data.suggestion || "No match found";
+      });
+    });
+  </script>
+</body>
+</html>
